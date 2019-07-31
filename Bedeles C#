@@ -1,0 +1,451 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Data.sqlClient;
+using System.Data;
+using System.Windows.Forms
+
+namespace Colegio
+{
+    abstract class Empleado
+    {
+        string nombre;
+        string apellido;
+        int legajo;
+        double sueldoBasico;
+        string direccion;
+
+        public string _nombre
+        {
+            set { nombre = value; }
+            get { return nombre; }
+        }
+
+        public string _apellido
+        {
+            set { apellido = value; }
+            get { return apellido; }
+        }
+
+        public int _legajo
+        {
+            set { legajo = value; }
+            get { return legajo; }
+        }
+
+        public double _sueldoBasico
+        {
+            set { sueldoBasico = value; }
+            get { return sueldoBasico; }
+        }
+
+        public string _direccion
+        {
+            set { direccion = value; }
+            get { return direccion; }
+        }
+
+        public Empleado()
+        {
+            nombre = "";
+            apellido = "";
+            legajo = 0;
+            sueldoBasico = 0;
+            direccion = "";
+        }
+
+        public Empleado(string nombre,string apellido,int legajo,double sueldoBasico,string direccion)
+        {
+            this.nombre = nombre;
+            this.apellido = apellido;
+            this.legajo = legajo;
+            this.sueldoBasico = sueldoBasico;
+            this.direccion = direccion;
+        }
+
+        public string ToStringEmpleado()
+        {
+            return "Nombre: " + nombre + "\n" + "Apellido: " + apellido + "\n" +"Direccion: " + direccion + "\n" + "Legajo: " + legajo.ToString() + "\n" 
+                + "Sueldo Basico: " + sueldoBasico.ToString();
+        }
+    }
+    class Bedel : Empleado
+    {
+        int idCategoria;
+
+        public int _idCategoria
+        {
+            set { idCategoria = value; }
+            get { return idCategoria; }
+        }
+
+        public double CalcularSueldoNeto()
+        {
+            double neto = base._sueldoBasico * 1.05;
+            if(idCategoria == 1)
+                neto = base._sueldoBasico - 1.1;
+            return neto;
+            
+        }
+
+        public Bedel():base()
+        {
+            idCategoria = 0;
+        }
+
+        public Bedel(int idCategoria,string nombre, string apellido,int legajo,double sueldoBasico,string direccion) : base(nombre, apellido, legajo, sueldoBasico, direccion)
+        {
+            this.idCategoria = idCategoria;
+        }
+
+        public string ToStringCategoria()
+        {
+            string categoriaString = "Interino";
+            if (idCategoria == 1)
+                categoriaString = "Concursado";
+            return categoriaString;
+        }
+
+        public string ToStringBedel()
+        {
+            return base.ToStringEmpleado() + "\n" + "Categoria: " + ToStringCategoria();
+        }
+    }
+    class Curso
+    {
+        int aula;
+        int idTurno;
+        int capacidad;
+        Bedel bedel;
+
+        public int _aula
+        {
+            set { aula = value; }
+            get { return aula; }
+        }
+
+        public int _idTurno
+        {
+            set { idTurno = value; }
+            get { return idTurno; }
+        }
+
+        public int _capacidad
+        {
+            set { capacidad = value; }
+            get { return capacidad; }
+        }
+
+        public Bedel _bedel
+        {
+            set { bedel = value; }
+            get { return bedel; }
+        }
+
+        public Curso()
+        {
+            aula = 0;
+            idTurno = 0;
+            capacidad = 0;
+            bedel = null;
+        }
+
+        public Curso(int aula,int idTurno,int capacidad,Bedel bedel)
+        {
+            this.aula = aula;
+            this.idTurno = idTurno;
+            this.capacidad = capacidad;
+            this.bedel = bedel;
+        }
+
+        public string ToStringTurno()
+        {
+            string turnoString;
+            switch (idTurno)
+            {
+                case 0:turnoString = "Mañana"; break;
+                case 1:turnoString = "Tarde";break;
+                case 2:turnoString = "Nombre";break;
+                default:turnoString = "Otro";break;   
+            }
+            return turnoString; 
+        }
+
+        public string ToStringCurso()
+        {
+            return "Aula: " + aula.ToString() + "\n" + "Turno: " + ToStringTurno() + "\n" + "Capacidad: " + capacidad.ToString() + "\n" + "Bedel: " + bedel.ToStringBedel();
+        }
+    }
+    class Conexion
+    {
+        SqlCommand comando;
+        SqlDataAdapter adaptador;
+        SqlConnection conexion;
+        DataTable tabla;
+        string cadenaConexion;
+
+        public SqlCommand _comando
+        {
+            set { comando = value; }
+            get { return comando; }
+        }
+
+        public SqlDataAdapter _adaptador
+        {
+            set { adaptador = value; }
+            get { return adaptador; }
+        }
+
+        public SqlConnection _conexion
+        {
+            set { conexion = value; }
+            get { return conexion; }
+        }
+
+        public DataTable _tabla
+        {
+            set { tabla = value; }
+            get { return tabla; }
+        }
+
+        public string _cadenaConexion
+        {
+            set { cadenaConexion = value; }
+            get { return cadenaConexion; }
+        }
+
+        public Conexion()
+        {
+            cadenaConexion = "Data Source=USUARIO-PC\\SQLEXPRESS;Initial Catalog=Colegio2;Integrated Security=True";
+            conexion = new SqlConnection(cadenaConexion);
+            try
+            {
+                conexion.Open();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Error de conexion: " + e.Message); 
+            }
+            conexion.Close();
+        }
+
+        public string RegistrarBedel(int idBedel,string nombre,string apellido,string direccion,double sueldo,int idCategoria)
+        {
+            string salida = "";
+            conexion.Open();
+            comando = new SqlCommand("insert into Bedeles(id,nombre,apellido,direccion,sueldoBasico,idCategoria) " +
+                "values(@idBedel,@nombre,@apellido,@direccion,@sueldo,@idCategoria) ",conexion);
+            comando.Parameters.AddWithValue("nombre", nombre);
+            comando.Parameters.AddWithValue("apellido", apellido);
+            comando.Parameters.AddWithValue("direccion", direccion);
+            comando.Parameters.AddWithValue("sueldo", sueldo);
+            comando.Parameters.AddWithValue("idCategoria", idCategoria);
+            comando.Parameters.AddWithValue("idBedel", idBedel);
+            try
+            {
+                comando.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                salida = "Error al registrar El Bedel" + e.Message;
+            }
+            conexion.Close();
+            return salida;
+
+        }
+
+        public string RegistrarCurso(int aula,int turno,int capacidad,int idBedel)
+        {
+            conexion.Open();
+            string salida;
+            comando = new SqlCommand("insert into Cursos(aula,idTurno,capacidad,idBedel) values(@aula,@turno,@capacidad,@idBedel)", conexion);
+            comando.Parameters.AddWithValue("aula", aula);
+            comando.Parameters.AddWithValue("turno", turno);
+            comando.Parameters.AddWithValue("capacidad", capacidad);
+            comando.Parameters.AddWithValue("idBedel", idBedel);
+            try
+            {
+                comando.ExecuteNonQuery();
+                salida = "Registro realizado correctamente";
+            }
+            catch (Exception e)
+            {
+                salida = "Error al registrar el curso" + e.Message;
+            }
+            conexion.Close();
+            return salida;
+        }
+
+        public void CargarComboBox(ComboBox cbo, SqlCommand comando,string display,string valor)
+        {
+            conexion.Open();
+            
+            
+            adaptador = new SqlDataAdapter(comando);
+            tabla = new DataTable();
+            adaptador.Fill(tabla);
+            cbo.DataSource = tabla;
+            cbo.DisplayMember = display;
+            cbo.ValueMember = valor;
+            conexion.Close();
+        }
+
+        public void CargarDataGrid(DataGridView dgv)
+        {
+            conexion.Open();
+            comando = new SqlCommand(" select b.id 'ID', b.nombre 'Nombre', b.apellido 'Apellido', b.direccion 'Direccion', b.sueldoBasico 'Sueldo', " +
+                "cat.categoria 'Categoria', t.turno 'Turno', c.capacidad 'Capacidad' from Bedeles b, cursos c, Categorias cat, turnos t " +
+                "where b.id = c.idBedel and(b.idCategoria = cat.idCategoria) and(c.idTurno = t.id) ", conexion);
+            adaptador = new SqlDataAdapter(comando);
+            tabla = new DataTable();
+            adaptador.Fill(tabla);
+            conexion.Close();
+            dgv.DataSource = tabla;
+            
+        }
+
+        public int CantPorTurno(int idTurno)
+        {
+            int valor;
+            conexion.Open();
+            comando = new SqlCommand("spCantBedelesPorTurno", conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            comando.Parameters.AddWithValue("@idTurno", idTurno);
+            try
+            {
+               valor = Convert.ToInt32( comando.ExecuteScalar());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            conexion.Close();
+            return valor;
+        }
+    }
+    public partial class Form1 : Form
+    {
+        Conexion conexion = new Conexion();
+        public Form1()
+        {
+            InitializeComponent();
+            conexion._comando = new SqlCommand("select * from Categorias",conexion._conexion);
+            conexion.CargarComboBox(cboCategoria, conexion._comando, "categoria", "idCategoria");
+            conexion._comando = new SqlCommand("select * from Turnos",conexion._conexion);
+            conexion.CargarComboBox(cboTurno,conexion._comando, "turno", "id");
+            txtTurnoMañana.Text =  conexion.CantPorTurno(0).ToString();
+        }
+
+        private void BtnRegistrar_Click(object sender, EventArgs e)
+        {
+            if (Validar())
+            {
+                Bedel bedel = new Bedel();
+                bedel._legajo = Convert.ToInt32(txtLegajo.Text);
+                bedel._nombre = txtNombre.Text;
+                bedel._apellido = txtApellido.Text;
+                bedel._direccion = txtDireccion.Text;
+                bedel._idCategoria = Convert.ToInt32(cboCategoria.SelectedValue);
+                bedel._sueldoBasico = Convert.ToDouble(txtSueldo.Text);
+
+                Curso curso = new Curso();
+                curso._aula = Convert.ToInt32(txtAula.Text);
+                curso._bedel = bedel;
+                curso._capacidad = Convert.ToInt32(txtCapacidad.Text);
+                curso._idTurno = Convert.ToInt32(cboTurno.SelectedValue);
+
+                DialogResult dialogo = MessageBox.Show("Seguro desea registrar? " + curso.ToStringCurso(), "Atencion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dialogo == DialogResult.Yes)
+                {
+                    conexion.RegistrarBedel(bedel._legajo, bedel._nombre, bedel._apellido, bedel._direccion, bedel._sueldoBasico, bedel._idCategoria);
+                    MessageBox.Show( conexion.RegistrarCurso(curso._aula, curso._idTurno,curso._capacidad, bedel._legajo));
+                    txtTurnoMañana.Text = conexion.CantPorTurno(0).ToString();
+
+
+                }
+            }
+            
+        }
+
+        private bool Validar()
+        {
+            if(txtLegajo.Text == "")
+            {
+                MessageBox.Show("Error en el campo Legajo", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtLegajo.Focus();
+                return false;
+            }
+            if (txtNombre.Text == "")
+            {
+                MessageBox.Show("Error en el campo Nombre", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtNombre.Focus();
+                return false;
+            }
+            if (txtApellido.Text == "")
+            {
+                MessageBox.Show("Error en el campo Apellido", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtApellido.Focus();
+                return false;
+            }
+            if (txtDireccion.Text == "")
+            {
+                MessageBox.Show("Error en el campo Direccion", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtDireccion.Focus();
+                return false;
+            }
+            if (txtSueldo.Text == "")
+            {
+                MessageBox.Show("Error en el campo Sueldo", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtSueldo.Focus();
+                return false;
+            }
+            if (cboCategoria.Text == "")
+            {
+                MessageBox.Show("Seleccione una categoria", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                cboCategoria.Focus();
+                return false;
+            }
+            if (txtAula.Text == "")
+            {
+                MessageBox.Show("Error en el campo Aula", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtAula.Focus();
+                return false;
+            }
+            if (txtCapacidad.Text == "")
+            {
+                MessageBox.Show("Error en el campo Capacidad", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtCapacidad.Focus();
+                return false;
+            }
+            if (cboTurno.Text == "")
+            {
+                MessageBox.Show("Seleccione un turno", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                cboTurno.Focus();
+                return false;
+            }
+            return true;
+
+        }
+
+        private void BtnListar_Click(object sender, EventArgs e)
+        {
+            Listado listado = new Listado();
+            AddOwnedForm(listado);
+            listado.Show();
+        } 
+    }
+    public partial class Listado : Form
+    {
+        Conexion conexion = new Conexion();
+        public Listado()
+        {
+            InitializeComponent();
+            conexion.CargarDataGrid(dgvListado);
+        }
+
+        
+    }
+}
