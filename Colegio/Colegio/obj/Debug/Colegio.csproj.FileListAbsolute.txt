@@ -1,0 +1,11 @@
+C:\Users\usuario\source\repos\Colegio\Colegio\bin\Debug\Colegio.exe.config
+C:\Users\usuario\source\repos\Colegio\Colegio\bin\Debug\Colegio.exe
+C:\Users\usuario\source\repos\Colegio\Colegio\bin\Debug\Colegio.pdb
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.csprojAssemblyReference.cache
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.Form1.resources
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.Properties.Resources.resources
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.csproj.GenerateResource.cache
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.csproj.CoreCompileInputs.cache
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.exe
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.pdb
+C:\Users\usuario\source\repos\Colegio\Colegio\obj\Debug\Colegio.Listado.resources
