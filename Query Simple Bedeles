@@ -1,0 +1,63 @@
+create database Colegio
+use Colegio
+
+create table Categorias
+(
+	idCategoria int not null identity(0,1),
+	categoria varchar (50)
+	constraint pkIdCategoria primary key(idCategoria)
+)
+
+create table Turnos
+(
+	id int not null identity(0,1),
+	turno varchar(50)
+	constraint pkIdTurno primary key (id)
+)
+
+create table Bedeles
+(
+	id int not null identity(0,1),
+	nombre varchar(50),
+	apellido varchar(50),
+	direccion varchar(50),
+	sueldoBasico money,
+	idCategoria int
+
+	constraint pkIdBedel primary key (id)
+	constraint fkIdCategoria foreign key (idCategoria) references Categorias(idCategoria)
+)
+
+create table Cursos
+(
+	aula int not null,
+	idTurno int,
+	capacidad int,
+	idBedel int
+	constraint pkIdCurso primary key (aula,idTurno)
+	constraint fkIdBedel foreign key(idBedel) references Bedeles(id),
+	constraint fkIdTurno foreign key(idTurno) references Turnos(id)
+)
+
+insert into Turnos(turno) values('Mañana')
+insert into Turnos(turno) values('Tarde')
+insert into Turnos(turno) values('Noche')
+
+insert into Categorias(categoria) values('Interino')
+insert into Categorias(categoria) values('Concursado')
+
+--STORED PROCEDURES --
+
+create procedure spCantBedelesPorTurno
+@idTurno as int
+as
+select count(b.id) as Cantidad from Bedeles b,Cursos c
+where b.id = c.idBedel and c.idTurno = @idTurno
+
+create procedure spCantBedelesPorCategoria
+@idCategoria as int
+as
+select count(id) as Cantidad from Bedeles
+where idCategoria = @idCategoria
+
+
