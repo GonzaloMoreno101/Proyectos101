@@ -1,0 +1,14 @@
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\bin\Debug\ViveroFenix.exe.config
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\bin\Debug\ViveroFenix.exe
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\bin\Debug\ViveroFenix.pdb
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.csprojAssemblyReference.cache
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.Form1.resources
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.Properties.Resources.resources
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.csproj.GenerateResource.cache
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.csproj.CoreCompileInputs.cache
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.exe
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.pdb
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.Detalles.resources
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.Registrar_Planta.resources
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.Nueva_Venta.resources
+C:\Users\usuario\source\repos\ViveroFenix\ViveroFenix\obj\Debug\ViveroFenix.Cantidad.resources
