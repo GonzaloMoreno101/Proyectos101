@@ -1,0 +1,186 @@
+CREATE DATABASE VIVERO_FENIX
+
+USE VIVERO_FENIX
+GO
+
+CREATE TABLE PROVINCIAS
+(
+	idProvincia int not null identity(0,1),
+	nombre varchar(100)
+	CONSTRAINT pkIdProvincia PRIMARY KEY(idProvincia)
+)
+
+CREATE TABLE LOCALIDADES
+(
+	idLocalidad int not null identity(0,1),
+	idProvincia int,
+	nombre  varchar(100)
+	CONSTRAINT pkIdLocalidad PRIMARY KEY(idLocalidad)
+	CONSTRAINT fkIdProvincia FOREIGN KEY(idProvincia) REFERENCES PROVINCIAS(idProvincia)
+)
+
+CREATE TABLE BARRIOS
+(
+	idBarrio int not null identity(0,1),
+	idLocalidad int,
+	nombre varchar(100)
+	CONSTRAINT pkIdBarrio PRIMARY KEY(idBarrio)
+	CONSTRAINT fkIdLocalidad FOREIGN KEY(idLocalidad) REFERENCES LOCALIDADES(idLocalidad)
+)
+
+CREATE TABLE CALLES
+(
+	idCalle int not null identity(0,1),
+	nombre varchar(50),
+	idBarrio int
+	CONSTRAINT pkIdCalle PRIMARY KEY(idCalle)
+	CONSTRAINT fkIdBarrio FOREIGN KEY(idBarrio) REFERENCES BARRIOS(idBarrio)
+)
+
+CREATE TABLE CONDICION_IVA
+(
+	idCondicion int not null,
+	descripcion varchar(100),
+	CONSTRAINT pkIdCondicion PRIMARY KEY(idCondicion)
+)
+
+CREATE TABLE CLIENTES
+(
+	idCliente int not null identity(0,1),
+	apellido varchar(100),
+	nombre varchar(100),
+	idCalle int,
+	altura int,
+	idBarrio int,
+	idLocalidad int,
+	idProvincia int,
+	telefono numeric(18,0),
+	idCondicion int,
+	cuit numeric(18,0),
+	deudor varchar(1),
+	email varchar(100)
+	CONSTRAINT pkIdCliente PRIMARY KEY(idCliente)
+	CONSTRAINT fkIdCalle FOREIGN KEY (idCalle) REFERENCES CALLES(idCalle),
+	CONSTRAINT fkIdBarrio FOREIGN KEY(idBarrio) REFERENCES BARRIOS(idBarrio),
+	CONSTRAINT fkIdLocalidad FOREIGN KEY(idLocalidad) REFERENCES LOCALIDADES(idLocalidad),
+	CONSTRAINT fkIdProvincia FOREIGN KEY(idProvincia) REFERENCES PROVINCIAS(idProvincia),
+	CONSTRAINT FKIdCondicion FOREIGN KEY(idCondicion) REFERENCES CONDICION_IVA(idCondicion)
+)
+
+CREATE TABLE FORMAS_PAGO
+(
+	idFormaPago int not null identity(0,1),
+	nombre varchar(50)
+	CONSTRAINT pkIdFormaPago PRIMARY KEY(idFormaPago)
+)
+
+CREATE TABLE TIPOS_PLANTAS
+(
+	idTipoPlanta int not null identity(0,1),
+	nombre varchar(100)
+	CONSTRAINT pkIdTipoPlanta PRIMARY KEY(idTipoPlanta)
+)
+
+CREATE TABLE PLANTAS
+(
+	idPlanta int not null identity(0,1),
+	nombre varchar(100),
+	idTipoPlanta int,
+	precio money,
+	stock int
+	CONSTRAINT pkIdPlanta PRIMARY KEY(idPlanta)
+	CONSTRAINT fkIdTipoPlanta FOREIGN KEY(idTipoPlanta)REFERENCES TIPOS_PLANTAS(idTipoPlanta)
+)
+
+CREATE TABLE FACTURAS
+(
+	idFactura int not null identity(0,1),
+	fecha datetime,
+	idFormaPago int,
+	idCliente int
+	CONSTRAINT pkIdFactura PRIMARY KEY(idFactura)
+	CONSTRAINT fkIdFormaPago FOREIGN KEY(idFormaPago) REFERENCES FORMAS_PAGO(idFormaPago),
+	CONSTRAINT fkIdCliente FOREIGN KEY(idCliente),REFERENCES CLIENTES(idCliente)
+)
+
+CREATE TABLE DETALLES_FACTURAS
+(
+	idFactura int,
+	idCliente int,
+	idFormaPago int,
+	fecha datetime
+	CONSTRAINT pkIdDetalle PRIMARY KEY(idFactura,idCliente,fecha)
+	CONSTRAINT fkIdCliente FOREIGN KEY(idCliente) REFERENCES CLIENTES(idCliente),
+	CONSTRAINT fkIdFactura FOREIGN KEY(idFactura) REFERENCES FACTURAS(idFactura),
+	CONSTRAINT fkIdFormaPago FOREIGN KEY(idFormaPago) REFERENCES FORMAS_PAGO(idFormaPago)
+)
+
+--Storaged Procedures
+
+
+CREATE PROCEDURE spActualizarRegistro
+@ID INT ,
+@DESC VARCHAR(100),
+@TIPO INT,
+@PRECIO MONEY,
+@STOCK INT
+AS
+UPDATE PLANTAS
+SET DESCRIPCION = @DESC,COD_TIPO_PLANTA = @TIPO,PRECIO = @PRECIO,STOCK = @STOCK
+WHERE COD_PLANTA = @ID
+GO
+
+SELECT * FROM FACTURAS
+
+CREATE PROCEDURE spListarTipos
+AS
+SELECT * FROM TIPOS_PLANTAS
+GO
+
+CREATE PROCEDURE spListarClientes
+AS
+SELECT COD_CLIENTE,APELLIDO + ' ' + NOMBRE AS NOMBRE FROM CLIENTES
+GO
+
+CREATE PROCEDURE spListarFormasPago
+AS
+SELECT * FROM FORMAS_PAGO
+GO
+
+CREATE PROCEDURE spListarProdSelec
+@ID INT
+AS
+SELECT COD_PLANTA 'ID',DESCRIPCION 'NOMBRE',PRECIO  FROM PLANTAS
+WHERE COD_PLANTA = @ID
+GO
+
+select * from plantas
+
+CREATE PROCEDURE spRegistrarVenta
+@ID INT,
+@FECHA DATETIME,
+@FORMA_PAGO INT,
+@CLIENTE INT
+AS
+INSERT INTO FACTURAS(NRO_FACTURA,FECHA,COD_FORMA_PAGO,COD_CLIENTE)
+VALUES(@ID,@FECHA,@FORMA_PAGO,@CLIENTE)
+GO
+
+CREATE PROCEDURE spRegistrarDetalleVenta
+@COD_DETALLE INT,
+@ID_PLANTA INT,
+@CANTIDAD INT,
+@ID_FACT INT
+AS
+INSERT INTO DETALLES_FACTURAS(COD_DETALLE,COD_PLANTA,CANTIDAD,NRO_FACTURA)
+VALUES(@COD_DETALLE,@ID_PLANTA,@CANTIDAD,@ID_FACT)
+GO
+
+
+CREATE PROCEDURE spMejoresClientes
+AS
+SELECT  TOP 5 C.NOMBRE, SUM (D.CANTIDAD * P.PRECIO) AS TOTAL FROM CLIENTES C,DETALLES_FACTURAS D,PLANTAS P,FACTURAS F 
+WHERE F.COD_CLIENTE = C.COD_CLIENTE AND (F.NRO_FACTURA = D.NRO_FACTURA) AND (P.COD_PLANTA = D.COD_PLANTA)
+GROUP BY C.NOMBRE
+ORDER BY TOTAL DESC
+GO
